@@ -5,6 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.common.exceptions import InvalidArgumentException
 from lxml import etree
 import time
 
@@ -26,7 +27,7 @@ fieldnames = [
 ]
 
 # 打开CSV文件以保存提取的数据
-with open('caifuhao_comments.csv', 'w', newline='', encoding='utf-8') as csvfile:
+with open('caifuhao_comments.csv', 'a', newline='', encoding='utf-8') as csvfile:
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
     writer.writeheader()
 
@@ -36,11 +37,18 @@ with open('caifuhao_comments.csv', 'w', newline='', encoding='utf-8') as csvfile
 
     # 遍历每个URL并提取评论数据
     for url in referer_urls:
-        # 打开目标网页
-        driver.get(url)
+        try:
+            # 打开目标网页
+            driver.get(url)
 
-        # 等待页面加载
-        time.sleep(3)
+            # 等待页面加载
+            time.sleep(3)
+        except InvalidArgumentException as e:
+            print(f"无效的URL：{url}")
+            print(f"错误信息：{e}")
+        except Exception as e:
+            print(f"处理URL{url}时发生未知错误：{e}")
+        
 
         # 点击“加载更多”按钮，直到按钮不存在为止
         while True:
