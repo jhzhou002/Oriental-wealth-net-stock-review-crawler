@@ -33,24 +33,29 @@ with open('guba_urls.txt', 'r', encoding='utf-8') as file:
 
 # 定义一个递归函数，用于提取评论及其子评论
 def extract_comments(comments):
+    # 检查comments是否为None或者空列表，如果是，则返回空列表
+    if comments is None or not comments:
+        return
+    
     for comment in comments:
         comment_data = {
             '评论者ID': comment.get('user_id'),
             '评论者名称': comment.get('reply_user', {}).get('user_nickname'),
-            '评论内容': comment.get('reply_text'),
+            '评论内容': comment.get('reply_text', ''),  # 确保即使没有评论内容也不会出错
             '点赞人数': comment.get('reply_like_count', 0),
             '发布日期': comment.get('reply_time'),
             '发布IP': comment.get('reply_ip_address', '')
         }
         yield comment_data
-        # 如果存在子评论，则递归提取子评论
+        
+        # 递归提取子评论
         yield from extract_comments(comment.get('child_replys', []))
 
 # 准备CSV文件的列名
 csv_columns = ['评论者ID', '评论者名称', '评论内容', '点赞人数', '发布日期', '发布IP']
 
 # 打开一个新的CSV文件用于写入
-with open('guba_comments.csv', 'w', newline='', encoding='utf-8') as csvfile:
+with open('guba_comments.csv', 'a', newline='', encoding='utf-8') as csvfile:
     writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
     writer.writeheader()
 
@@ -72,7 +77,7 @@ with open('guba_comments.csv', 'w', newline='', encoding='utf-8') as csvfile:
             data = response.json()
 
             # 检查响应中是否有评论数据
-            if 're' in data:
+            if 're' in data and data['re']:
                 # 从递归函数中获取所有评论数据并写入CSV
                 for comment_data in extract_comments(data['re']):
                     writer.writerow(comment_data)
