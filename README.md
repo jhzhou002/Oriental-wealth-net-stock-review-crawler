@@ -17,3 +17,5 @@
 **注意：运行之前先把谷歌驱动放到正确位置**，否则python文件运行报错，我在文件放了一个驱动，对应的谷歌浏览器version：126.xxx
 
 ![image-20240616202958674](https://cdn.jsdelivr.net/gh/jhzhou002/blogImage@main/image/image-20240616202958674.png)
+
+演示视频：
